@@ -34,7 +34,10 @@ pipeline {
         stage('Run tests') {
             steps {
                 script {
-                    docker.run("-p 8083:8080 --rm ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}", "npm install && npm test")
+                    // Ejecutar comandos dentro del contenedor usando "sh"
+                    docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").inside {
+                        sh 'npm install && npm test'
+                    }
                 }
             }
         }
@@ -50,3 +53,4 @@ pipeline {
         }
     }
 }
+
