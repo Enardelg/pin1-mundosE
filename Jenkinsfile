@@ -28,13 +28,8 @@ pipeline {
         stage('Run tests') {
             steps {
                 script {
-                    def containerId = docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").run('-p 8081:8080', detach: true)
-                    sleep 10 // Asegúrate de que la aplicación dentro del contenedor esté completamente iniciada
-                    try {
-                        sh "docker exec ${containerId} npm test"
-                    } finally {
-                        docker.stop(containerId)
-                        docker.remove(containerId)
+                    docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").withRun('-p 8081:8080') {
+                        sh 'npm test'
                     }
                 }
             }
@@ -51,4 +46,3 @@ pipeline {
         }
     }
 }
-
