@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copia los archivos de configuración (package.json y package-lock.json) e instala las dependencias
 COPY package*.json ./
-RUN apk add --no-cache npm   # Instala npm
+RUN apk add --no-cache nodejs npm   # Instala nodejs y npm
 RUN npm install
 
 # Imprime la versión de npm
