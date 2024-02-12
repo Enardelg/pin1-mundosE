@@ -24,8 +24,8 @@ pipeline {
                 }
                 script {
                     docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").inside {
-                        sh 'apk add --no-cache npm'
-                        sh 'npm install'
+                        sh 'apk add --no-cache nodejs npm'
+                        sh '/usr/bin/npm install'
                     }
                 }
             }
@@ -35,7 +35,7 @@ pipeline {
             steps {
                 script {
                     docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").withRun('-p 8083:8080') {
-                        sh 'npm test'
+                        sh '/usr/bin/npm test'
                     }
                 }
             }
@@ -52,3 +52,4 @@ pipeline {
         }
     }
 }
+
