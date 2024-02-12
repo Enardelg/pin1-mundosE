@@ -6,8 +6,8 @@ pipeline {
     }
 
     environment {
-        ARTIFACT_ID = "elbuo8/webapp:${env.BUILD_NUMBER}"
-        DOCKER_REGISTRY = "192.168.0.28:5000/mguazzardo"
+        ARTIFACT_ID = "enardelg/testapp:${env.BUILD_NUMBER}"
+        DOCKER_REGISTRY = "enardelg"
         IMAGE_NAME = "testapp"
     }
 
