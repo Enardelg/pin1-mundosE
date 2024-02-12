@@ -34,10 +34,8 @@ pipeline {
         stage('Run tests') {
             steps {
                 script {
-                    docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").withRun('-p 8083:8080') {
-                        // No es necesario agregar la ruta de npm al PATH
-                        sh 'npm test'
-                    }
+            docker.run("-p 8083:8080 --rm ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}", "npm install && npm test")
+                }
                 }
             }
         }
