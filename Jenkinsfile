@@ -35,7 +35,7 @@ pipeline {
         stage('Deploy Image') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'ID_DE_TUS_CREDENCIALES', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    withCredentials([usernamePassword(credentialsId: '52260b70-8643-4fcf-a2ad-187c7cc474bb', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh '''
                             echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
                             docker tag $IMAGE_NAME $DOCKER_REGISTRY/$IMAGE_NAME
