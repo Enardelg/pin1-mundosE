@@ -28,7 +28,7 @@ pipeline {
         stage('Run tests') {
             steps {
                 script {
-                    docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").withRun('-p 8080:8080') {
+                    docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").withRun('-p 8081:8080') {
                         sh 'npm test'
                     }
                 }
