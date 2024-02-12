@@ -6,6 +6,7 @@ WORKDIR /app
 
 # Copia los archivos de configuración (package.json y package-lock.json) e instala las dependencias
 COPY package*.json ./
+RUN apk add --no-cache npm   # Instala npm
 RUN npm install
 
 # Expone el puerto 3000
