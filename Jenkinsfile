@@ -21,6 +21,9 @@ pipeline {
             steps {
                 script {
                     docker.build("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}")
+                    docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").inside {
+                sh 'apk add --no-cache npm'
+                sh 'npm install'
                 }
             }
         }
