@@ -7,7 +7,6 @@ pipeline {
 
     environment {
         DOCKER_IMAGE_NAME = "testapp"
-        DOCKER_REGISTRY = "docker.io"
     }
 
     stages {
@@ -24,7 +23,6 @@ pipeline {
                 }
                 script {
                     docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").inside {
-                        // No es necesario agregar la ruta de npm al PATH
                         sh 'npm install'
                     }
                 }
@@ -34,10 +32,7 @@ pipeline {
         stage('Run tests') {
             steps {
                 script {
-                    // Ejecutar comandos dentro del contenedor usando "sh"
-                    docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").inside {
-                        sh 'npm install && npm test'
-                    }
+                    docker.run("-p 8083:8080 --rm ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}", "npm install && npm test")
                 }
             }
         }
@@ -45,7 +40,7 @@ pipeline {
         stage('Deploy Image to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry("${DOCKER_REGISTRY}", 'pin1') {
+                    docker.withRegistry("https://docker.io", 'pin1') {
                         docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").push()
                     }
                 }
