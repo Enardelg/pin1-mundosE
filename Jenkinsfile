@@ -24,9 +24,8 @@ pipeline {
                 }
                 script {
                     docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").inside {
-                        // Agregar la ruta de npm al PATH
-                        sh 'export PATH=$PATH:/usr/bin && apk add --no-cache nodejs npm'
-                        sh '/usr/bin/npm install'
+                        // No es necesario agregar la ruta de npm al PATH
+                        sh 'npm install'
                     }
                 }
             }
@@ -36,8 +35,8 @@ pipeline {
             steps {
                 script {
                     docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").withRun('-p 8083:8080') {
-                        // Agregar la ruta de npm al PATH
-                        sh 'export PATH=$PATH:/usr/bin && /usr/bin/npm test'
+                        // No es necesario agregar la ruta de npm al PATH
+                        sh 'npm test'
                     }
                 }
             }
@@ -54,4 +53,3 @@ pipeline {
         }
     }
 }
-
