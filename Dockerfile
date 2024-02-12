@@ -4,7 +4,7 @@ FROM node:11.1.0-alpine
 # Establece el directorio de trabajo en /app
 WORKDIR /app
 
-# Copia los archivos de configuración e instala las dependencias
+# Copia los archivos de configuración (package.json y package-lock.json) e instala las dependencias
 COPY package*.json ./
 RUN npm install
 
@@ -16,3 +16,4 @@ COPY . .
 
 # Comando para ejecutar la aplicación
 CMD ["node", "index"]
+
