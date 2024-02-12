@@ -6,9 +6,10 @@ pipeline {
     }
 
     environment {
-        ARTIFACT_ID = "enardelg/testapp:${env.BUILD_NUMBER}"
-        DOCKER_REGISTRY = "docker.io"  // Cambiado a docker.io para DockerHub
-        IMAGE_NAME = "testapp"
+        DOCKER_IMAGE_NAME = "testapp"
+        DOCKER_HUB_USERNAME = credentials('pin1').username
+        DOCKER_HUB_PASSWORD = credentials('pin1').password
+        DOCKER_HUB_REGISTRY = "docker.io"
     }
 
     stages {
@@ -20,32 +21,26 @@ pipeline {
 
         stage('Building image') {
             steps {
-                sh '''
-                    docker build -t $DOCKER_REGISTRY/$IMAGE_NAME .
-                '''
+                script {
+                    sh "docker build -t ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} ."
+                }
             }
         }
 
         stage('Run tests') {
             steps {
-                sh "docker run $DOCKER_REGISTRY/$IMAGE_NAME npm test"
+                script {
+                    sh "docker run ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} npm test"
+                }
             }
         }
 
-        stage('Deploy Image') {
+        stage('Deploy Image to Docker Hub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'pin1', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        echo "DOCKER_USERNAME: $DOCKER_USERNAME"
-                        echo "DOCKER_PASSWORD: $DOCKER_PASSWORD"
-                        echo "DOCKER_REGISTRY: $DOCKER_REGISTRY"
-                        
-                        sh '''
-                            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-                            docker tag $IMAGE_NAME $DOCKER_REGISTRY/$IMAGE_NAME
-                            docker push $DOCKER_REGISTRY/$IMAGE_NAME
-                        '''
-                    }
+                    sh "docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD} ${DOCKER_HUB_REGISTRY}"
+                    sh "docker tag ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    sh "docker push ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
                 }
             }
         }
