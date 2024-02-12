@@ -35,7 +35,7 @@ pipeline {
         stage('Deploy Image') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: '52260b70-8643-4fcf-a2ad-187c7cc474bb', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    withCredentials([usernamePassword(credentialsId: 'pin1', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         echo "DOCKER_USERNAME: $DOCKER_USERNAME"
                         echo "DOCKER_PASSWORD: $DOCKER_PASSWORD"
                         echo "DOCKER_REGISTRY: $DOCKER_REGISTRY"
