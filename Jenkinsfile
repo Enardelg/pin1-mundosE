@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -28,7 +29,8 @@ pipeline {
         stage('Run tests') {
             steps {
                 script {
-                    docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").withRun('-p 8081:8080') {
+                    docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").withRun('-d -p 8081:8080') {
+                        sleep 5 // Asegúrate de que la aplicación dentro del contenedor esté completamente iniciada
                         sh 'npm test'
                     }
                 }
