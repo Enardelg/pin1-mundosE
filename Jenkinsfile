@@ -19,8 +19,6 @@ pipeline {
         stage('Building image') {
             steps {
                 script {
-                    DOCKER_HUB_USERNAME = credentials('pin1').username
-                    DOCKER_HUB_PASSWORD = credentials('pin1').password
                     sh "docker build -t ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} ."
                 }
             }
@@ -37,13 +35,13 @@ pipeline {
         stage('Deploy Image to Docker Hub') {
             steps {
                 script {
-                    sh "docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD} docker.io"
-                    sh "docker tag ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
-                    sh "docker push ${DOCKER_HUB_USERNAME}/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    docker.withRegistry('https://index.docker.io/v1/', 'pin1') {
+                        sh "docker tag ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
+                        sh "docker push ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    }
                 }
             }
         }
     }
 }
-
 
