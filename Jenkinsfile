@@ -7,6 +7,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE_NAME = "testapp"
+        DOCKER_REGISTRY = "docker.io"
     }
 
     stages {
@@ -19,7 +20,7 @@ pipeline {
         stage('Building image') {
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} ."
+                    docker.build("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}")
                 }
             }
         }
@@ -27,7 +28,9 @@ pipeline {
         stage('Run tests') {
             steps {
                 script {
-                    sh "docker run ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} npm test"
+                    docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").withRun('-p 8080:8080') {
+                        sh 'npm test'
+                    }
                 }
             }
         }
@@ -35,9 +38,8 @@ pipeline {
         stage('Deploy Image to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'pin1') {
-                        sh "docker tag ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER} ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
-                        sh "docker push ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    docker.withRegistry("${DOCKER_REGISTRY}", 'pin1') {
+                        docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").push()
                     }
                 }
             }
