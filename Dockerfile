@@ -9,6 +9,9 @@ COPY package*.json ./
 RUN apk add --no-cache npm   # Instala npm
 RUN npm install
 
+# Imprime la versión de npm
+RUN npm -v
+
 # Expone el puerto 3000
 EXPOSE 3000
 
@@ -17,4 +20,3 @@ COPY . .
 
 # Comando para ejecutar la aplicación
 CMD ["node", "index"]
-
