@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -29,9 +28,13 @@ pipeline {
         stage('Run tests') {
             steps {
                 script {
-                    docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").withRun('-d -p 8081:8080') {
-                        sleep 5 // Asegúrate de que la aplicación dentro del contenedor esté completamente iniciada
-                        sh 'npm test'
+                    def containerId = docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").run('-p 8081:8080', detach: true)
+                    sleep 10 // Asegúrate de que la aplicación dentro del contenedor esté completamente iniciada
+                    try {
+                        sh "docker exec ${containerId} npm test"
+                    } finally {
+                        docker.stop(containerId)
+                        docker.remove(containerId)
                     }
                 }
             }
