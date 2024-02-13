@@ -9,7 +9,7 @@ pipeline {
         // Reemplaza con el nombre real de tu imagen
         DOCKER_IMAGE_NAME = "testapp"
         // Reemplaza con la versión deseada (opcional)
-        DOCKER_IMAGE_VERSION = ""
+        DOCKER_IMAGE_VERSION = "1.0.0"
     }
 
     stages {
