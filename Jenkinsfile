@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_IMAGE_NAME = "testapp"
+        DOCKER_IMAGE_NAME = "testapp" // O el nombre real de tu imagen
     }
 
     stages {
@@ -16,37 +16,39 @@ pipeline {
             }
         }
 
-        stage('Building image') {
+        stage('Construcción de la imagen') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}")
+                    docker.build('enardelg/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}') // Construir con el repositorio destino actualizado
                 }
                 script {
-                    docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").inside {
+                    docker.image('enardelg/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}').inside {
                         sh 'npm install'
                     }
                 }
             }
         }
 
-        stage('Run tests') {
+        stage('Ejecutar pruebas') {
             steps {
                 script {
-                    docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").inside {
+                    docker.image('enardelg/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}').inside {
                         sh 'npm install && npm test'
                     }
                 }
             }
         }
 
-        stage('Deploy Image to Docker Hub') {
+        stage('Desplegar la imagen en Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry("https://docker.io", 'pin1') {
-                        docker.image("${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}").push()
+                    // Asumiendo que las credenciales están configuradas como 'dockerhub-credentials'
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
+                        docker.image('enardelg/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}').push()
                     }
                 }
             }
         }
     }
 }
+
