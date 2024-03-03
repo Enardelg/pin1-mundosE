@@ -70,15 +70,13 @@ pipeline {
 
   // Sección posterior a la ejecución del pipeline
   post {
-    // Siempre después de cada ejecución
     always {
-      script {
-        // Detener y eliminar cualquier contenedor en ejecución con la imagen especificada
-        if (docker ps -q --filter ancestor=enardelg/testapp:1.0.0) {
-          docker stop enardelg/testapp:1.0.0
+        script {
+            if (docker 'ps -q --filter ancestor=enardelg/testapp:1.0.0') {
+                docker 'stop enardelg/testapp:1.0.0'
+            }
         }
-      }
     }
-  }
+}
 }
 
