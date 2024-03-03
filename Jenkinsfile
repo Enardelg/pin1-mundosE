@@ -43,14 +43,11 @@ pipeline {
     // Etapa 3: Ejecutar pruebas
     stage('Ejecutar pruebas') {
       steps {
+        // Entrar al contenedor, instalar dependencias y ejecutar pruebas
         script {
-          // Entrar al contenedor, instalar dependencias y ejecutar pruebas
           docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}").inside {
-            sh 'npm install && npm test'
+            sh 'npm install && npm test' // O tu comando de pruebas
           }
-
-          // Mapear el puerto 3000 del host al puerto 3000 del contenedor en segundo plano (-d)
-          sh 'docker run -p 3000:3000 -d enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}'
         }
       }
     }
@@ -58,8 +55,8 @@ pipeline {
     // Etapa 4: Desplegar la imagen en Docker Hub
     stage('Desplegar la imagen en Docker Hub') {
       steps {
+        // Autenticarse en Docker Hub e insertar la imagen
         script {
-          // Autenticarse en Docker Hub e insertar la imagen
           docker.withRegistry('https://index.docker.io/v1/', 'pin1') {
             docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}").push()
           }
@@ -67,17 +64,7 @@ pipeline {
       }
     }
   }
-
-  // Sección posterior a la ejecución del pipeline
-  post {
-    always {
-        script {
-            if (docker.image('enardelg/testapp:1.0.0').exists()) {
-                docker.image('enardelg/testapp:1.0.0').remove()
-            }
-        }
-    }
-  }
-
 }
+
+// correr este comando, para mepear el puerto 3000 del host local:     docker run -p 3000:3000 -t -d enardelg/testapp:1.0.0
 
