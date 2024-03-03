@@ -72,11 +72,12 @@ pipeline {
   post {
     always {
         script {
-            if (docker 'ps -q --filter ancestor=enardelg/testapp:1.0.0') {
-                docker 'stop enardelg/testapp:1.0.0'
+            if (docker([ 'ps', '-q', '--filter', 'ancestor=enardelg/testapp:1.0.0' ])) {
+                docker([ 'stop', 'enardelg/testapp:1.0.0' ])
             }
         }
     }
-}
+  }
+
 }
 
