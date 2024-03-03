@@ -33,18 +33,13 @@ pipeline {
         stage('Ejecutar pruebas') {
             steps {
                 script {
-                    def dockerImage = docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}")
-                    def dockerImageNameWithTag = dockerImage.imageNameWithTag()
-
-                    // Construir el comando de ejecución del contenedor con el mapeo de puertos
-                    def dockerRunCommand = """
-                        docker run -p 3000:3000 ${dockerImageNameWithTag}
-                    """
-
-                    // Ejecutar el contenedor
-                    dockerImage.inside(dockerRunCommand) {
-                        sh 'npm install && npm test' // O tu comando de pruebas
+                    // Construir la imagen y ejecutar pruebas
+                    docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}").inside {
+                        sh 'npm install && npm test'
                     }
+
+                    // Mapear el puerto 3000 del host al puerto 3000 del contenedor
+                    sh 'docker run -p 3000:3000 -d enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}'
                 }
             }
         }
@@ -59,4 +54,15 @@ pipeline {
             }
         }
     }
+
+    post {
+        always {
+            // Detener y eliminar el contenedor después de ejecutar las pruebas
+            script {
+                sh 'docker stop $(docker ps -q --filter ancestor=enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER})'
+                sh 'docker rm $(docker ps -a -q --filter ancestor=enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER})'
+            }
+        }
+    }
 }
+
