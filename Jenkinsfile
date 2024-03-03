@@ -20,9 +20,10 @@ pipeline {
         stage('Construcción de la imagen') {
             steps {
                 script {
-                    def imageName = "enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ?: env.BUILD_NUMBER}"
-                    docker.build(imageName)
-                    docker.image(imageName).inside {
+                    docker.build("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}")
+                }
+                script {
+                    docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}").inside {
                         sh 'npm install' // O cualquier comando necesario
                     }
                 }
@@ -32,9 +33,17 @@ pipeline {
         stage('Ejecutar pruebas') {
             steps {
                 script {
-                    def imageName = "enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ?: env.BUILD_NUMBER}"
-                    def containerId = sh(script: "docker run -d -p 3000:3000 ${imageName}", returnStdout: true).trim()
-                    sh "docker exec -it ${containerId} npm install && npm test"
+                    def dockerImage = docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}")
+
+                    // Construir el comando de ejecución del contenedor con el mapeo de puertos
+                    def dockerRunCommand = """
+                        docker run -p 3000:3000 ${dockerImage.imageNameWithTag()}
+                    """
+
+                    // Ejecutar el contenedor
+                    dockerImage.inside(dockerRunCommand) {
+                        sh 'npm install && npm test' // O tu comando de pruebas
+                    }
                 }
             }
         }
@@ -42,9 +51,8 @@ pipeline {
         stage('Desplegar la imagen en Docker Hub') {
             steps {
                 script {
-                    def imageName = "enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ?: env.BUILD_NUMBER}"
                     docker.withRegistry('https://index.docker.io/v1/', 'pin1') {
-                        docker.image(imageName).push()
+                        docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}").push()
                     }
                 }
             }
