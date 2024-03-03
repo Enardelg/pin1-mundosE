@@ -34,10 +34,11 @@ pipeline {
             steps {
                 script {
                     def dockerImage = docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}")
+                    def dockerImageNameWithTag = dockerImage.imageNameWithTag()
 
                     // Construir el comando de ejecución del contenedor con el mapeo de puertos
                     def dockerRunCommand = """
-                        docker run -p 3000:3000 ${dockerImage.imageNameWithTag()}
+                        docker run -p 3000:3000 ${dockerImageNameWithTag}
                     """
 
                     // Ejecutar el contenedor
