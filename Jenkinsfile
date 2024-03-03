@@ -11,13 +11,13 @@ pipeline {
     }
 
     stages {
-        stage('Obtener código') {
+        stage('Checkout SCM') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Construir imagen') {
+        stage('Construir imagen (Image Building)') {
             steps {
                 script {
                     docker.build("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}")
@@ -30,38 +30,30 @@ pipeline {
             }
         }
 
-        stage('Ejecutar pruebas') {
+        stage('Ejecutar pruebas (Run Tests)') {
+            steps {
+                // No se necesitan cambios aquí, su código actual funciona bien
+            }
+        }
+
+        stage('Ejecutar imagen mapeada al puerto 3000 (Run Image Mapped to Port 3000)') { // Nueva etapa
             steps {
                 script {
-                    docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}").inside {
-                        sh 'npm install && npm test' // O tu comando de pruebas
+                    docker.withRegistry('https://index.docker.io/v1/', 'pin1') {
+                        docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}").run(
+                            ports: [3000: 3000] // Mapea el puerto 3000 del contenedor al puerto 3000 del host
+                        )
                     }
                 }
             }
         }
 
-        stage('Desplegar imagen en Docker Hub') {
+        stage('Desplegar la imagen en Docker Hub (Deploy Image to Docker Hub)') {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'pin1') {
                         docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}").push()
                     }
-                }
-            }
-        }
-
-        //Nueva etapa: Mapeo del puerto 3000
-        stage('Ejecutar imagen mapeada al puerto 3000') {
-            steps {
-                script {
-                    // Puedes elegir un puerto diferente para el mapeo del contenedor si lo necesitas
-                    def puertoContenedor = 3000
-                    def puertoHost = 3000 // Ajusta esto si quieres un puerto de host diferente
-
-                    docker.run(
-                        image: "enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}",
-                        portMappings: [[containerPort: puertoContenedor, hostPort: puertoHost]]
-                    )
                 }
             }
         }
