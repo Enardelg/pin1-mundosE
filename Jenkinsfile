@@ -50,7 +50,7 @@ pipeline {
             }
         }
 
-        **Nueva etapa: Mapeo del puerto 3000**
+        //Nueva etapa: Mapeo del puerto 3000
         stage('Ejecutar imagen mapeada al puerto 3000') {
             steps {
                 script {
