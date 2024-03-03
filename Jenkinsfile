@@ -62,7 +62,7 @@ pipeline {
             sh 'docker stop $(docker ps -q --filter ancestor=enardelg/testapp:1.0.0)'
             sh 'docker rm $(docker ps -a -q --filter ancestor=enardelg/testapp:1.0.0)'
         }
+      }
     }
-  }
-}
+} 
 
