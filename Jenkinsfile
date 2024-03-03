@@ -20,10 +20,9 @@ pipeline {
         stage('Construir imagen (Image Building)') {
             steps {
                 script {
-                    docker.build("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}")
-                }
-                script {
-                    docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}").inside {
+                    def imageName = "enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}"
+                    docker.build(imageName)
+                    docker.image(imageName).inside {
                         sh 'npm install' // O cualquier comando necesario
                     }
                 }
@@ -36,12 +35,15 @@ pipeline {
             }
         }
 
-        stage('Ejecutar imagen mapeada al puerto 3000 (Run Image Mapped to Port 3000)') { // Nueva etapa
+        stage('Ejecutar imagen mapeada al puerto 3000 (Run Image Mapped to Port 3000)') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'pin1') {
-                        docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}").run(
-                            ports: [3000: 3000] // Mapea el puerto 3000 del contenedor al puerto 3000 del host
+                    def registryUrl = 'https://index.docker.io/v1/'
+                    def registryCredential = 'pin1'
+                    def imageName = "enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}"
+                    docker.withRegistry(registryUrl, registryCredential) {
+                        docker.image(imageName).run(
+                            ports: [3000: 3000]
                         )
                     }
                 }
@@ -51,11 +53,15 @@ pipeline {
         stage('Desplegar la imagen en Docker Hub (Deploy Image to Docker Hub)') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'pin1') {
-                        docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}").push()
+                    def registryUrl = 'https://index.docker.io/v1/'
+                    def registryCredential = 'pin1'
+                    def imageName = "enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}"
+                    docker.withRegistry(registryUrl, registryCredential) {
+                        docker.image(imageName).push()
                     }
                 }
             }
         }
     }
 }
+
