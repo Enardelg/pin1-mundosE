@@ -29,11 +29,15 @@ pipeline {
             }
         }
 
-        stage('Ejecutar pruebas (Run Tests)') {
-            steps {
-                // No se necesitan cambios aquí, su código actual funciona bien
-            }
+         stage('Ejecutar pruebas') {
+      steps {
+        script {
+          docker.image("enardelg/${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}").inside {
+            sh 'npm install && npm test' // O tu comando de pruebas
+          }
         }
+      }
+    }
 
         stage('Ejecutar imagen mapeada al puerto 3000 (Run Image Mapped to Port 3000)') {
             steps {
