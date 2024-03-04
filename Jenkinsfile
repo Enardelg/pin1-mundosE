@@ -67,4 +67,5 @@ pipeline {
 }
 
 // correr este comando, para mepear el puerto 3000 del host local:     docker run -p 3000:3000 -t -d enardelg/testapp:1.0.0
+// realizar la consulta con este endpoint:   http://localhost:3000/add/3/5 (el server deberia mostrar la suma de los parametros indicados, en este caso 5 )
 
