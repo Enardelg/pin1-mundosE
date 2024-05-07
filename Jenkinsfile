@@ -63,6 +63,15 @@ pipeline {
         }
       }
     }
+
+    stage('Imprimiendo imagen por consola') {
+            steps {
+                script {
+                    def imageTag = "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}"
+                    sh "echo 'La imagen ${imageTag} ha sido empujada exitosamente'"
+                }
+            }
+        }
   }
 }
 
