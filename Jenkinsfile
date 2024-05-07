@@ -64,10 +64,13 @@ pipeline {
       }
     }
 
+    // Etapa 5: Imprimiendo por consola nombre de imagen
     stage('Imprimiendo imagen por consola') {
             steps {
                 script {
+                    // Construye la etiqueta de la imagen
                     def imageTag = "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION ? DOCKER_IMAGE_VERSION : env.BUILD_NUMBER}"
+                    // Imprime un mensaje en la consola
                     sh "echo 'La imagen ${imageTag} ha sido empujada exitosamente'"
                 }
             }
